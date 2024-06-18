@@ -7,15 +7,11 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.WindowInsetsSides
-import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.only
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.systemBarsPadding
-import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -124,12 +120,6 @@ fun ChatScreen(toUser: UserProfile?, userViewModel: UserViewModel = hiltViewMode
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(padding)
-                        .consumeWindowInsets(padding)
-                        .windowInsetsPadding(
-                            WindowInsets.safeDrawing.only(
-                                WindowInsetsSides.Horizontal,
-                            ),
-                        )
                 ) {
                     val (messages, chatBox) = createRefs()
 
@@ -219,45 +209,42 @@ fun ChatBox(
     onSendChatClickListener: (String) -> Unit,
 ) {
     var chatBoxValue by remember { mutableStateOf(TextFieldValue("")) }
-    Row(modifier = modifier.padding(start = 16.dp, end = 16.dp)) {
-        TextField(
-            maxLines = 5,
-            value = chatBoxValue,
-            onValueChange = { newText ->
-                chatBoxValue = newText
-            },
-            modifier = Modifier
-                .weight(1f)
-                .padding(4.dp),
-            shape = RoundedCornerShape(24.dp),
-            colors = TextFieldDefaults.colors(
-                focusedIndicatorColor = Color.Transparent,
-                unfocusedIndicatorColor = Color.Transparent,
-                disabledIndicatorColor = Color.Transparent
-            ),
-            placeholder = {
-                Text(text = "Type something")
-            }
-        )
-        IconButton(
-            onClick = {
-                val msg = chatBoxValue.text
-                if (msg.isBlank()) return@IconButton
-                onSendChatClickListener(chatBoxValue.text)
-                chatBoxValue = TextFieldValue("")
-            },
-            modifier = Modifier
-                .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.background)
-                .align(Alignment.CenterVertically)
-        ) {
-            Icon(
-                imageVector = Icons.Filled.Send,
-                contentDescription = "Send",
+    TextField(
+        maxLines = 5,
+        value = chatBoxValue,
+        onValueChange = { newText ->
+            chatBoxValue = newText
+        },
+        modifier = modifier.padding(4.dp).imePadding(),
+        shape = RoundedCornerShape(24.dp),
+        colors = TextFieldDefaults.colors(
+            focusedIndicatorColor = Color.Transparent,
+            unfocusedIndicatorColor = Color.Transparent,
+            disabledIndicatorColor = Color.Transparent
+        ),
+        placeholder = {
+            Text(text = "Type something")
+        },
+        trailingIcon = {
+            IconButton(
+                onClick = {
+                    val msg = chatBoxValue.text
+                    if (msg.isBlank()) return@IconButton
+                    onSendChatClickListener(chatBoxValue.text)
+                    chatBoxValue = TextFieldValue("")
+                },
                 modifier = Modifier
-                    .fillMaxSize()
-                    .padding(8.dp)
-            )
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.background)
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Send,
+                    contentDescription = "Send",
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(8.dp)
+                )
+            }
         }
-    }
+    )
 }
