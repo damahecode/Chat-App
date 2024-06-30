@@ -5,7 +5,9 @@ import com.code.damahe.system.model.MembersUID
 import com.code.damahe.system.model.Message
 import com.code.damahe.system.model.UserProfile
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.SetOptions
+import com.google.firebase.firestore.toObject
 
 class FirebaseDB(private val db: FirebaseFirestore) {
 
@@ -24,7 +26,7 @@ class FirebaseDB(private val db: FirebaseFirestore) {
         }
     }
 
-    suspend fun getUserDetails(uid: String, callback: (profile: UserProfile?) -> Unit) {
+    fun getUser(uid: String, callback: (profile: UserProfile?) -> Unit) {
         db.collection("users").document(uid).get()
             .addOnSuccessListener { document ->
                 if (document.exists()) {
@@ -39,7 +41,7 @@ class FirebaseDB(private val db: FirebaseFirestore) {
             }
     }
 
-    suspend fun getUserDetails(field: String, values: List<String>, callback: (userList: List<UserProfile>) -> Unit) {
+    suspend fun getUsers(field: String, values: List<String>, callback: (userList: List<UserProfile>) -> Unit) {
         if (values.isNotEmpty()) {
             val list = ArrayList<UserProfile>()
             db.collection("users")
@@ -58,7 +60,6 @@ class FirebaseDB(private val db: FirebaseFirestore) {
     }
 
     suspend fun getUserContacted(uid: String, callback: (msUID: List<MembersUID>) -> Unit) {
-        val list = ArrayList<MembersUID>()
         db.collection("MessageRoom")
             .whereArrayContainsAny("membersUid", listOf(uid))
             .addSnapshotListener { value, error ->
@@ -66,6 +67,7 @@ class FirebaseDB(private val db: FirebaseFirestore) {
                     Log.d("getUserContacted", "get failed with ", error)
                     return@addSnapshotListener
                 }
+                val list = ArrayList<MembersUID>()
                 if (value != null) {
                     Log.d("getUserContacted", value.size().toString())
                     for (queryDocument in value) {
@@ -114,6 +116,24 @@ class FirebaseDB(private val db: FirebaseFirestore) {
                         list.add(message.toObject(Message::class.java))
                     }
                     callback(list)
+                }
+            }
+    }
+
+    fun getUserLastMessage(jointUID: String, callback: (message: Message) -> Unit) {
+        db.collection("MessageRoom").document(jointUID)
+            .collection("messages")
+            .orderBy("createdAt")
+            .limitToLast(1).get()
+            .addOnSuccessListener { value ->
+                if (value != null) {
+                    var message: Message? = null
+                    value.forEach {
+                        message = it.toObject(Message::class.java)
+                    }
+                    message?.let {
+                        callback(it)
+                    }
                 }
             }
     }
