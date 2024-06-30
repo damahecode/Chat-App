@@ -7,12 +7,12 @@ import com.code.damahe.system.data.UserRepository
 import com.code.damahe.system.model.ChatMembers
 import com.code.damahe.system.model.Message
 import com.code.damahe.system.model.TypeMessage
-import com.code.damahe.system.model.UserProfile
+import com.code.damahe.system.model.UserContacted
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
-
 import javax.inject.Inject
 
 @HiltViewModel
@@ -22,15 +22,15 @@ class MessageViewModel @Inject constructor(private val messageRepository: Messag
         fetchUserContacted()
     }
 
-    val userContacted = MutableStateFlow<List<UserProfile>>(emptyList())
+    val userContacted = MutableStateFlow<List<UserContacted>>(emptyList())
 
     val myMessages = MutableStateFlow<List<Message>>(emptyList())
 
     private fun fetchUserContacted(myUid: String? = userRepository.getCurrentUser()) {
         viewModelScope.launch(Dispatchers.IO) {
-            val uidList = ArrayList<String>()
             if (myUid != null) {
                 messageRepository.getUserContacted(myUid) {
+                    val uidList = ArrayList<String>()
                     for (msUID in it) {
                         for (uid in msUID.membersUid) {
                             if (uid != myUid) {
@@ -39,7 +39,9 @@ class MessageViewModel @Inject constructor(private val messageRepository: Messag
                         }
                     }
                     viewModelScope.launch(Dispatchers.IO) {
-                        messageRepository.firebaseDB.getUserDetails("uid", uidList) { list ->
+                        val list = ArrayList<UserContacted>()
+                        messageRepository.fetchUserContacted(myUid, uidList) { contacted ->
+                            list.add(contacted)
                             updateUserContacted(list)
                         }
                     }
@@ -48,8 +50,9 @@ class MessageViewModel @Inject constructor(private val messageRepository: Messag
         }
     }
 
-    private fun updateUserContacted(list: List<UserProfile>) {
+    private fun updateUserContacted(list: List<UserContacted>) {
         viewModelScope.launch(Dispatchers.IO) {
+            delay(2000)
             userContacted.emit(list)
         }
     }

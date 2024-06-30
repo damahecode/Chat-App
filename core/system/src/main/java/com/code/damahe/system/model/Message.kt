@@ -19,8 +19,8 @@ data class Message(
 )
 
 data class ChatMembers(
-    var fromUser: String? = null, // userName
-    var toUser: String? = null, // userName (personal/group)
+    var fromUser: String? = null, // userUID
+    var toUser: String? = null, // userUID (personal/group)
 )
 
 data class TypeMessage(
