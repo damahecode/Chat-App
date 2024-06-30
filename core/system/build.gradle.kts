@@ -41,6 +41,7 @@ dependencies {
 
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.datastore.preferences)
+    implementation(libs.gson)
     implementation(libs.room.runtime)
     ksp(libs.room.compiler)
 
