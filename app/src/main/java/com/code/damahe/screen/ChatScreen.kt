@@ -2,6 +2,7 @@ package com.code.damahe.screen
 
 import android.widget.Toast
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -22,6 +23,7 @@ import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -40,6 +42,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
@@ -121,51 +124,66 @@ fun ChatScreen(toUser: UserProfile?, userViewModel: UserViewModel = hiltViewMode
                         .fillMaxSize()
                         .padding(padding)
                 ) {
-                    val (messages, chatBox) = createRefs()
-
-                    val listState = rememberLazyListState()
-                    LaunchedEffect(myMessages.value.size) {
-                        listState.animateScrollToItem(myMessages.value.size)
-                    }
-                    LazyColumn(
-                        state = listState,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .constrainAs(messages) {
-                                top.linkTo(parent.top)
-                                bottom.linkTo(chatBox.top)
-                                start.linkTo(parent.start)
-                                end.linkTo(parent.end)
-                                height = Dimension.fillToConstraints
-                            },
-                        contentPadding = PaddingValues(16.dp)
-                    ) {
-                        items(myMessages.value) { item ->
-                            ChatItem(toUser?.userName != item.chatMembers?.fromUser, item)
+                    if (myMessages.value.isEmpty()) {
+                        Column(modifier = Modifier
+                            .fillMaxSize()
+                            .padding(5.dp)
+                            .systemBarsPadding(),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            LinearProgressIndicator(
+                                trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                                strokeCap = StrokeCap.Butt,
+                            )
                         }
-                    }
-                    ChatBox(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .systemBarsPadding()
-                            .constrainAs(chatBox) {
-                                bottom.linkTo(parent.bottom)
-                                start.linkTo(parent.start)
-                                end.linkTo(parent.end)
+                    } else {
+                        val (messages, chatBox) = createRefs()
+
+                        val listState = rememberLazyListState()
+                        LaunchedEffect(myMessages.value.size) {
+                            listState.animateScrollToItem(myMessages.value.size)
+                        }
+                        LazyColumn(
+                            state = listState,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .constrainAs(messages) {
+                                    top.linkTo(parent.top)
+                                    bottom.linkTo(chatBox.top)
+                                    start.linkTo(parent.start)
+                                    end.linkTo(parent.end)
+                                    height = Dimension.fillToConstraints
+                                },
+                            contentPadding = PaddingValues(16.dp)
+                        ) {
+                            items(myMessages.value) { item ->
+                                ChatItem(toUser?.userName != item.chatMembers?.fromUser, item)
                             }
-                    ) {
-                        if (myProfile.value?.uid != null && toUser?.uid != null) {
-                            messageViewModel.sendMessage(myProfile.value?.uid!!, toUser.uid!!,
-                                ChatMembers(myProfile.value?.userName, toUser.userName),
-                                "text", TypeMessage(it)) { success ->
-                                if (!success)
-                                    Toast.makeText(context, "Something went wrong!", Toast.LENGTH_SHORT).show()
+                        }
+                        ChatBox(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .systemBarsPadding()
+                                .constrainAs(chatBox) {
+                                    bottom.linkTo(parent.bottom)
+                                    start.linkTo(parent.start)
+                                    end.linkTo(parent.end)
+                                }
+                        ) {
+                            if (myProfile.value?.uid != null && toUser?.uid != null) {
+                                messageViewModel.sendMessage(myProfile.value?.uid!!, toUser.uid!!,
+                                    ChatMembers(myProfile.value?.uid, toUser.uid),
+                                    "text", TypeMessage(it)) { success ->
+                                    if (!success)
+                                        Toast.makeText(context, "Something went wrong!", Toast.LENGTH_SHORT).show()
+                                }
+                            } else {
+                                if (myProfile.value?.uid == null)
+                                    Toast.makeText(context, "myProfile.value?.uid != null", Toast.LENGTH_SHORT).show()
+                                if (toUser?.uid == null)
+                                    Toast.makeText(context, "toUser?.uid != null", Toast.LENGTH_SHORT).show()
                             }
-                        } else {
-                            if (myProfile.value?.uid == null)
-                                Toast.makeText(context, "myProfile.value?.uid != null", Toast.LENGTH_SHORT).show()
-                            if (toUser?.uid == null)
-                                Toast.makeText(context, "toUser?.uid != null", Toast.LENGTH_SHORT).show()
                         }
                     }
                 }
