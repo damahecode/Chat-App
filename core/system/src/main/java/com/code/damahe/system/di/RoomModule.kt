@@ -3,6 +3,7 @@ package com.code.damahe.system.di
 import android.content.Context
 import androidx.room.Room
 import com.code.damahe.system.database.AppDatabase
+import com.code.damahe.system.database.dao.MessageDao
 import com.code.damahe.system.database.dao.UserProfileDao
 import dagger.Module
 import dagger.Provides
@@ -18,7 +19,7 @@ object RoomModule {
     @Singleton
     @Provides
     fun provideRoomDatabase(@ApplicationContext context: Context): AppDatabase {
-        return Room.databaseBuilder(context, AppDatabase::class.java, "main")
+        return Room.databaseBuilder(context, AppDatabase::class.java, "main1")
             .build()
     }
 
@@ -27,8 +28,8 @@ object RoomModule {
         return appDatabase.userProfileDao()
     }
 
-//    @Provides
-//    fun provideMessageDao(appDatabase: AppDatabase): MessageDao {
-//        return appDatabase.messageDao()
-//    }
+    @Provides
+    fun provideMessageDao(appDatabase: AppDatabase): MessageDao {
+        return appDatabase.messageDao()
+    }
 }

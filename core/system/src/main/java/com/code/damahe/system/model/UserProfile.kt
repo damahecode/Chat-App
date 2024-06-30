@@ -18,3 +18,9 @@ data class UserProfile(
     var about: String? = null,
     var fcmToken: String? = null,
 )
+
+data class UserContacted(
+    val myUserName: String,
+    val userProfile: UserProfile,
+    val lastMessage: Message
+)

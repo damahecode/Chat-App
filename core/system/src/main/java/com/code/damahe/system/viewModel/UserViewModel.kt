@@ -61,7 +61,7 @@ class UserViewModel @Inject constructor(private val userRepository: UserReposito
     private fun checkMyServerProfile(callback: (serverProfile: UserProfile?) -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
             userRepository.getCurrentUser()?.let {
-                userRepository.firebaseDB.getUserDetails(it) { profile ->
+                userRepository.firebaseDB.getUser(it) { profile ->
                     callback(profile)
                 }
             }
@@ -70,7 +70,7 @@ class UserViewModel @Inject constructor(private val userRepository: UserReposito
 
     fun getUserProfile(userName: String, callback: (userProfile: UserProfile?) -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
-            userRepository.firebaseDB.getUserDetails("userName", listOf(userName)) {
+            userRepository.firebaseDB.getUsers("userName", listOf(userName)) {
                 if (it.size == 1) {
                     callback(it[0])
                 } else {
