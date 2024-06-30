@@ -68,7 +68,7 @@ import com.code.damahe.ui.screen.HomeScreen
     ExperimentalMaterial3Api::class
 )
 @Composable
-fun MainScreen(activity: Activity, viewModel: UserViewModel = hiltViewModel(), messageViewModel: MessageViewModel = hiltViewModel(), navigate: (route: String, userProfile: UserProfile) -> Unit) {
+fun MainScreen(activity: Activity, viewModel: UserViewModel = hiltViewModel(), navigate: (route: String, userProfile: UserProfile) -> Unit) {
 
     val showThemeSettingsDialog = remember { mutableStateOf(false) }
     val currentUser = viewModel.currentUser.collectAsState()
@@ -172,7 +172,7 @@ fun MainScreen(activity: Activity, viewModel: UserViewModel = hiltViewModel(), m
                             ),
                         ),
                 ) {
-                    HomeScreen(messageViewModel = messageViewModel, navigate = navigate)
+                    HomeScreen(navigate = navigate)
                 }
             }
         }
